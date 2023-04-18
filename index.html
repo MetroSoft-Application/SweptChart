@@ -126,22 +126,28 @@
                 <button type="button" onclick="OnExec();"> Exec</button>
                 <br />
                 <a href="" id="Downloadlink" class="download">Download</a>
+                <br />
+                <p>CutoffHz/AverageNum</p>
+                <input type="number" id="Cutoff" value="100" max="4000" min="0" />
+                <br />
+                <p>Amplitude</p>
+                <input type="number" id="Amplitude" value="10" max="1000" min="-1000" />
+                <br />
                 <p>SamplingHz</p>
                 <select id="SamplingHz">
                 </select>
+                <br />
                 <p>SamplingNum</p>
                 <select id="SamplingNum">
                 </select>
+                <br />
                 <p>FilterType</p>
                 <select id="FilterType">
                 </select>
+                <br />
                 <p>Mode</p>
                 <select id="Mode">
                 </select>
-                <p>CutoffHz/AverageNum</p>
-                <input type="number" id="Cutoff" value="100" max="4000" min="0" />
-                <p>Amplitude</p>
-                <input type="number" id="Amplitude" value="10" max="1000" min="-1000" />
             </div>
             <div class="right-column">
                 <div id="SineChart"></div>
@@ -226,7 +232,11 @@
                     return;
                 }
 
-                let modeSelect = { Swept: 0, Sine: 1, Step: 2 };
+                let modeSelect = {
+                    Swept: 0
+                    //, Sine: 1
+                    , Step: 2
+                };
                 Object.keys(modeSelect).forEach(function (key) {
                     let opt = document.createElement('option');
                     opt.setAttribute('value', modeSelect[key]);
