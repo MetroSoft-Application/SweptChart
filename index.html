@@ -3,12 +3,10 @@
 
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css">
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-        <script src="DigitalFilter.js"></script>
-        <script src="bundle.js"></script>
-        <!-- <script src="./fft.js/lib/fft.js.js"></script> -->
-        <script src="./complex.js/complex.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.production.min.js"></script>
         <style>
             * {
                 margin: 0;
@@ -93,11 +91,11 @@
             #SineChart,
             #GainChart,
             #PhaseChart {
-                width: 900px;
-                height: 300px;
+
+                height: 250px;
                 background-color: #ffffff;
                 border-radius: 8px;
-                padding: 20px;
+                padding: 10px;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
                 margin-bottom: 20px;
             }
@@ -109,12 +107,32 @@
 
             .left-column {
                 flex: 1;
-                padding: 20px;
+                padding: 5px;
+                flex-grow: 1;
+                margin-left: 20px;
+            }
+
+            .center-column {
+                flex: 1;
+                padding: 5px;
+                flex-basis: 45%;
+
             }
 
             .right-column {
                 flex: 1;
-                padding: 20px;
+                padding: 5px;
+                flex-basis: 40%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            .fixed-header {
+                position: sticky;
+                top: 0px;
+                background-color: #ffffff;
+                z-index: 100;
             }
         </style>
     </head>
@@ -150,15 +168,46 @@
                 <a href="" id="Downloadlink" class="download">Download</a>
                 <br />
             </div>
-            <div class="right-column">
+            <div class="center-column">
                 <div id="SineChart"></div>
                 <div id="GainChart"></div>
                 <div id="PhaseChart"></div>
             </div>
+            <div class="right-column">
+                <div id="ResultTable"></div>
+            </div>
         </div>
+        <script src="DigitalFilter.js"></script>
+        <script src="bundle.js"></script>
+        <!-- <script src="./fft.js/lib/fft.js.js"></script> -->
+        <script src="./complex.js/complex.js"></script>
         <script>
             google.charts.load('current', { packages: ['corechart', 'line'] });
             google.charts.setOnLoadCallback(formInit);
+
+            const Columns = [
+                "Time"
+                , "Input"
+                , "Filtered"
+                , "Freq"
+                , "Gain"
+                , "Phase"
+            ];
+            const grid = new gridjs.Grid({
+                columns: Columns,
+                data: [], // 初期データは空にしておく
+                className: {
+                    table: 'fixed-header',
+                },
+                // sort: true,
+                // search: true,
+                // pagination: {
+                //     enabled: true,
+                //     limit: 2
+                // }
+            });
+            grid.render(document.getElementById("ResultTable"));
+
             function SamplingHzInit() {
                 let samplingHz = document.getElementById('SamplingHz');
                 if (samplingHz.length > 0) {
@@ -508,10 +557,12 @@
 
             function SetCsv(samplingSec, freq, input, output, closedGain, closedPhase) {
                 let csvData = [];
-                csvData.push(["Time", "Input", "Filtered", "Freq", "Gain", "Phase"]);
                 for (i = 0; i < freq.length; i++) {
                     csvData.push([i * samplingSec, input[i], output[i], freq[i], closedGain[i], closedPhase[i]]);
                 }
+                DrawGrid(csvData.slice());
+                csvData.unshift(["Time", "Input", "Filtered", "Freq", "Gain", "Phase"]);
+
                 let csvContent = "data:text/csv;charset=utf-8,";
                 const splitter = ",";
                 const newLIne = "\r\n";
@@ -532,6 +583,14 @@
 
             function GetValueByID(ID) {
                 return document.getElementById(ID).value;
+            }
+
+            function DrawGrid(gridData) {
+                grid.updateConfig({
+                    data: gridData,
+                }).forceRender();
+                grid.render(document.getElementById("ResultTable"));
+
             }
 
             function OnExec() {
